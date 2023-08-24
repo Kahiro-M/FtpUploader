@@ -37,11 +37,11 @@ def read_config(config_path):
     else:
         # ファイル読み取れない場合のデフォルト（テスト環境）
         print_log(config_path+'が読み取れないため、デフォルト接続設定で実行します。','warning')
-        server_host = 'sample_host_name'
-        server_dir = '/sample/dir/to/path'
-        ftp_user = 'sample_user'
-        ftp_password = 'sample_password'
-        ftp_tls = 'TLSv1.2'
+        server_host = 'sv2.html.xdomain.ne.jp'
+        server_dir = '/point'
+        ftp_user = 'sawaitest.html.xdomain.jp'
+        ftp_password = 'XU2-Zx-58T5vXG5'
+        ftp_tls = 'none'
     return server_host, server_dir, ftp_user, ftp_password, ftp_tls
 
 def upload_csv_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, local_csv_paths, ftp_tls):
