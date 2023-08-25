@@ -2,6 +2,7 @@ from ftplib import FTP_TLS
 from ftplib import FTP
 import ssl
 import os
+import re
 import configparser
 import logging
 import datetime
@@ -27,13 +28,16 @@ class FTP_TLSv12(FTP_TLS):
 
 def read_config(config_path):
     config = configparser.ConfigParser()
-    read_ret = config.read(config_path)
+    read_ret = config.read(config_path, encoding='utf-8')
     if(len(read_ret) > 0):
         server_host = config.get('FTP', 'server_host')
         server_dir = config.get('FTP', 'server_dir')
         ftp_user = config.get('FTP', 'ftp_user')
         ftp_password = config.get('FTP', 'ftp_password')
         ftp_tls = config.get('FTP', 'ftp_tls')
+        files_to_upload = re.split(r',|\n', config.get('FILES','files_to_upload'))
+        files_to_upload = [item for item in files_to_upload if item.strip() != ""]
+        files_to_upload = [item.strip() for item in files_to_upload]
     else:
         # ファイル読み取れない場合のデフォルト（テスト環境）
         print_log(config_path+'が読み取れないため、デフォルト接続設定で実行します。','warning')
@@ -42,9 +46,14 @@ def read_config(config_path):
         ftp_user = 'sample_user'
         ftp_password = 'sample_password'
         ftp_tls = 'TLSv1.2'
-    return server_host, server_dir, ftp_user, ftp_password, ftp_tls
+        files_to_upload = [
+            './abc1.csv',
+            './abc2.csv',
+            './abc3.csv',
+            ]
+    return server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload
 
-def upload_csv_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, local_csv_paths, ftp_tls):
+def upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls):
     try:
         tls_type_list = [s.lower() for s in ['TLSv1.2','TLSv12','TLS1.2','TLS12','TLS']]
 
@@ -62,10 +71,10 @@ def upload_csv_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, local
         print_log(server_dir+'に移動します。','info')
         ftp.cwd(server_dir)
         
-        for local_csv_path in local_csv_paths:
-            print_log(local_csv_path+'をアップロード中。。。','info')
-            with open(local_csv_path, 'rb') as local_file:
-                filename = os.path.basename(local_csv_path)
+        for file_to_upload in files_to_upload:
+            print_log(file_to_upload+'をアップロード中。。。','info')
+            with open(file_to_upload, 'rb') as local_file:
+                filename = os.path.basename(file_to_upload)
                 ftp.storbinary(f'STOR {filename}', local_file)
         
         # 接続を閉じる
@@ -76,11 +85,6 @@ def upload_csv_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, local
 
 # ローカルファイルを読み取って実行
 config_path = 'data.ini'
-local_csv_paths = [
-    './hanby.csv',
-    './hnhp_jd.csv',
-    './hnhp.csv',
-    ]
 
 # 日付を取得してYYYYMMDD形式の文字列を作成
 current_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -88,5 +92,5 @@ current_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 log_file_path = f'ftp_upload_{current_date}.log'
 logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-server_host, server_dir, ftp_user, ftp_password, ftp_tls = read_config(config_path)
-upload_csv_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, local_csv_paths, ftp_tls)
+server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload = read_config(config_path)
+upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls)
