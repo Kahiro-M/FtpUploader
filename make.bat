@@ -1,0 +1,1 @@
+pyinstaller FtpUploader.py --onefile --icon=ftp_uploader.ico
