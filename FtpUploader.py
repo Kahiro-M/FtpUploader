@@ -41,11 +41,11 @@ def read_config(config_path):
     else:
         # ファイル読み取れない場合のデフォルト（テスト環境）
         print_log(config_path+'が読み取れないため、デフォルト接続設定で実行します。','warning')
-        server_host = 'sv2.html.xdomain.ne.jp'
-        server_dir = '/point'
-        ftp_user = 'sawaitest.html.xdomain.jp'
-        ftp_password = 'XU2-Zx-58T5vXG5'
-        ftp_tls = 'none'
+        server_host = 'genmaikosoblog.sakura.ne.jp'
+        server_dir = '/home/genmaikosoblog/www/pet/point'
+        ftp_user = 'genmaikosoblog'
+        ftp_password = 'p)Rw+Edn-(BLAcrH7'
+        ftp_tls = 'tlsv1.2'
         files_to_upload = [
             './hanby.csv',
             './hnhp.csv',
