@@ -30,14 +30,63 @@ def read_config(config_path):
     config = configparser.ConfigParser()
     read_ret = config.read(config_path, encoding='utf-8')
     if(len(read_ret) > 0):
-        server_host = config.get('FTP', 'server_host')
-        server_dir = config.get('FTP', 'server_dir')
-        ftp_user = config.get('FTP', 'ftp_user')
-        ftp_password = config.get('FTP', 'ftp_password')
-        ftp_tls = config.get('FTP', 'ftp_tls')
-        files_to_upload = re.split(r',|\n', config.get('FILES','files_to_upload'))
-        files_to_upload = [item for item in files_to_upload if item.strip() != ""]
-        files_to_upload = [item.strip() for item in files_to_upload]
+        if(config.has_section('FTP')):
+            if(config.has_option('FTP','server_host')):
+                server_host = config.get('FTP', 'server_host')
+            else:
+                print_log(config_path+'の[server_host]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                server_host = 'sample_host_name'
+
+            if(config.has_option('FTP','server_dir')):
+                server_dir = config.get('FTP', 'server_dir')
+            else:
+                print_log(config_path+'の[server_dir]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                server_dir = '/sample/dir/to/path'
+
+            if(config.has_option('FTP','ftp_user')):
+                ftp_user = config.get('FTP', 'ftp_user')
+            else:
+                print_log(config_path+'の[ftp_user]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                ftp_user = 'sample_user'
+
+            if(config.has_option('FTP','ftp_password')):
+                ftp_password = config.get('FTP', 'ftp_password')
+            else:
+                print_log(config_path+'の[ftp_password]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                ftp_password = 'sample_password'
+
+            if(config.has_option('FTP','ftp_tls')):
+                ftp_tls = config.get('FTP', 'ftp_tls')
+            else:
+                print_log(config_path+'の[ftp_tls]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                ftp_tls = 'TLSv1.2'
+        else:
+            print_log(config_path+'の[FTP]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
+            server_host = 'sample_host_name'
+            server_dir = '/sample/dir/to/path'
+            ftp_user = 'sample_user'
+            ftp_password = 'sample_password'
+            ftp_tls = 'TLSv1.2'
+
+        if(config.has_section('FILES')):
+            if(config.has_option('FILES','files_to_upload')):
+                files_to_upload = re.split(r',|\n', config.get('FILES','files_to_upload'))
+                files_to_upload = [item for item in files_to_upload if item.strip() != ""]
+                files_to_upload = [item.strip() for item in files_to_upload]
+            else:
+                print_log(config_path+'の[files_to_upload]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                files_to_upload = [
+                    './abc1.csv',
+                    './abc2.csv',
+                    './abc3.csv',
+                ]
+        else:
+            print_log(config_path+'の[FILES]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
+            files_to_upload = [
+                './abc1.csv',
+                './abc2.csv',
+                './abc3.csv',
+            ]
     else:
         # ファイル読み取れない場合のデフォルト（テスト環境）
         print_log(config_path+'が読み取れないため、デフォルト接続設定で実行します。','warning')
