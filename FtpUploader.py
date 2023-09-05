@@ -30,14 +30,63 @@ def read_config(config_path):
     config = configparser.ConfigParser()
     read_ret = config.read(config_path, encoding='utf-8')
     if(len(read_ret) > 0):
-        server_host = config.get('FTP', 'server_host')
-        server_dir = config.get('FTP', 'server_dir')
-        ftp_user = config.get('FTP', 'ftp_user')
-        ftp_password = config.get('FTP', 'ftp_password')
-        ftp_tls = config.get('FTP', 'ftp_tls')
-        files_to_upload = re.split(r',|\n', config.get('FILES','files_to_upload'))
-        files_to_upload = [item for item in files_to_upload if item.strip() != ""]
-        files_to_upload = [item.strip() for item in files_to_upload]
+        if(config.has_section('FTP')):
+            if(config.has_option('FTP','server_host')):
+                server_host = config.get('FTP', 'server_host')
+            else:
+                print_log(config_path+'の[server_host]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                server_host = 'genmaikosoblog.sakura.ne.jp'
+
+            if(config.has_option('FTP','server_dir')):
+                server_dir = config.get('FTP', 'server_dir')
+            else:
+                print_log(config_path+'の[server_dir]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                server_dir = '/home/genmaikosoblog/www/pet/point'
+
+            if(config.has_option('FTP','ftp_user')):
+                ftp_user = config.get('FTP', 'ftp_user')
+            else:
+                print_log(config_path+'の[ftp_user]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                ftp_user = 'genmaikosoblog'
+
+            if(config.has_option('FTP','ftp_password')):
+                ftp_password = config.get('FTP', 'ftp_password')
+            else:
+                print_log(config_path+'の[ftp_password]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                ftp_password = 'p)Rw+Edn-(BLAcrH7'
+
+            if(config.has_option('FTP','ftp_tls')):
+                ftp_tls = config.get('FTP', 'ftp_tls')
+            else:
+                print_log(config_path+'の[ftp_tls]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                ftp_tls = 'tlsv1.2'
+        else:
+            print_log(config_path+'の[FTP]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
+            server_host = 'genmaikosoblog.sakura.ne.jp'
+            server_dir = '/home/genmaikosoblog/www/pet/point'
+            ftp_user = 'genmaikosoblog'
+            ftp_password = 'p)Rw+Edn-(BLAcrH7'
+            ftp_tls = 'tlsv1.2'
+
+        if(config.has_section('FILES')):
+            if(config.has_option('FILES','files_to_upload')):
+                files_to_upload = re.split(r',|\n', config.get('FILES','files_to_upload'))
+                files_to_upload = [item for item in files_to_upload if item.strip() != ""]
+                files_to_upload = [item.strip() for item in files_to_upload]
+            else:
+                print_log(config_path+'の[files_to_upload]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                files_to_upload = [
+                    './hanby.csv',
+                    './hnhp.csv',
+                    './hnhp_jd.csv',
+                ]
+        else:
+            print_log(config_path+'の[FILES]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
+            files_to_upload = [
+                './hanby.csv',
+                './hnhp.csv',
+                './hnhp_jd.csv',
+            ]
     else:
         # ファイル読み取れない場合のデフォルト（テスト環境）
         print_log(config_path+'が読み取れないため、デフォルト接続設定で実行します。','warning')
