@@ -145,12 +145,12 @@ def upload(input='data.ini'):
     logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     print_log('============= FTPアップローダー =============','info')
-    print_log('                                    Ver.1.0.2','info')
+    print_log('                                    Ver.1.0.4','info')
     server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload = read_config(config_path)
     upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls)
     print_log('=============================================','info')
 
-def main(input):
+def main(input='data.ini'):
     upload(input)
 
 if __name__ == '__main__':
