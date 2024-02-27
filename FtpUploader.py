@@ -2,6 +2,7 @@ from ftplib import FTP_TLS
 from ftplib import FTP
 import ssl
 import os
+import sys
 import re
 import configparser
 import logging
@@ -59,7 +60,7 @@ def read_config(config_path):
                 ftp_tls = config.get('FTP', 'ftp_tls')
             else:
                 print_log(config_path+'の[ftp_tls]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
-                ftp_tls = 'TLSv1.2'
+                ftp_tls = 'tlsv1.2'
         else:
             print_log(config_path+'の[FTP]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
             server_host = 'sample_host_name'
@@ -132,17 +133,29 @@ def upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, file
     except Exception as e:
         print_log(('エラー:',e),'error')
 
-# ローカルファイルを読み取って実行
-config_path = 'data.ini'
 
-# 日付を取得してYYYYMMDD形式の文字列を作成
-current_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-# ログの設定
-log_file_path = f'ftp_upload_{current_date}.log'
-logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def upload(input='data.ini'):
+    # ローカルファイルを読み取って実行
+    config_path = input
 
-print_log('============= FTPアップローダー =============','info')
-print_log('                                    Ver.1.0.2','info')
-server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload = read_config(config_path)
-upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls)
-print_log('=============================================','info')
+    # 日付を取得してYYYYMMDD形式の文字列を作成
+    current_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    # ログの設定
+    log_file_path = f'ftp_upload_{current_date}.log'
+    logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    print_log('============= FTPアップローダー =============','info')
+    print_log('                                    Ver.1.0.2','info')
+    server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload = read_config(config_path)
+    upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls)
+    print_log('=============================================','info')
+
+def main(input):
+    upload(input)
+
+if __name__ == '__main__':
+    args = sys.argv
+    if(len(args)>1):
+        main(args[1])
+    else:
+        main()
