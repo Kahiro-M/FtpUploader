@@ -7,6 +7,7 @@ import re
 import configparser
 import logging
 import datetime
+import glob
 
 def print_log(str,log_level):
     print(str)
@@ -76,18 +77,21 @@ def read_config(config_path):
                 files_to_upload = [item.strip() for item in files_to_upload]
             else:
                 print_log(config_path+'の[files_to_upload]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
-                files_to_upload = [
-                    './abc1.csv',
-                    './abc2.csv',
-                    './abc3.csv',
-                ]
+                files_to_upload = []
         else:
             print_log(config_path+'の[FILES]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
-            files_to_upload = [
-                './abc1.csv',
-                './abc2.csv',
-                './abc3.csv',
-            ]
+            files_to_upload = []
+        if(config.has_section('DIRECTORIES')):
+            if(config.has_option('DIRECTORIES','directories_to_upload')):
+                directories_to_upload = re.split(r',|\n', config.get('DIRECTORIES','directories_to_upload'))
+                directories_to_upload = [item for item in directories_to_upload if item.strip() != ""]
+                directories_to_upload = [item.strip() for item in directories_to_upload]
+            else:
+                print_log(config_path+'の[directories_to_upload]オプションが読み取れないため、デフォルト接続設定で実行します。','warning')
+                directories_to_upload = []
+        else:
+            print_log(config_path+'の[FILES]セクションが読み取れないため、デフォルト接続設定で実行します。','warning')
+            directories_to_upload = []
     else:
         # ファイル読み取れない場合のデフォルト（テスト環境）
         print_log(config_path+'が読み取れないため、デフォルト接続設定で実行します。','warning')
@@ -96,13 +100,18 @@ def read_config(config_path):
         ftp_user = 'sample_user'
         ftp_password = 'sample_password'
         ftp_tls = 'TLSv1.2'
-        files_to_upload = [
-            './abc1.csv',
-            './abc2.csv',
-            './abc3.csv',
-            ]
-    return server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload
+        files_to_upload = []
+        directories_to_upload = []
+    return server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload, directories_to_upload
 
+def upload_directories_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, directories_to_upload, ftp_tls):
+    if(len(directories_to_upload)>0):
+        for directory in directories_to_upload:
+            print(directory)
+            file_to_upload_directory = glob.glob(directory+'/*')
+            print(file_to_upload_directory)
+            upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, file_to_upload_directory, ftp_tls)
+    
 def upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls):
     try:
         tls_type_list = [s.lower() for s in ['TLSv1.2','TLSv12','TLS1.2','TLS12','TLS']]
@@ -146,8 +155,11 @@ def upload(input='data.ini'):
 
     print_log('============= FTPアップローダー =============','info')
     print_log('                                    Ver.1.0.4','info')
-    server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload = read_config(config_path)
-    upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls)
+    server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload, directories_to_upload = read_config(config_path)
+    if(len(directories_to_upload)>0):
+        upload_directories_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, directories_to_upload, ftp_tls)
+    if(len(files_to_upload)>0):
+        upload_file_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, files_to_upload, ftp_tls)
     print_log('=============================================','info')
 
 def main(input='data.ini'):
