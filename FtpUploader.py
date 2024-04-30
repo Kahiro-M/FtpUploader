@@ -154,7 +154,7 @@ def upload(input='data.ini'):
     logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     print_log('============= FTPアップローダー =============','info')
-    print_log('                                    Ver.1.0.4','info')
+    print_log('                                    Ver.1.0.5','info')
     server_host, server_dir, ftp_user, ftp_password, ftp_tls, files_to_upload, directories_to_upload = read_config(config_path)
     if(len(directories_to_upload)>0):
         upload_directories_to_ftp_tls(server_host, server_dir, ftp_user, ftp_password, directories_to_upload, ftp_tls)
